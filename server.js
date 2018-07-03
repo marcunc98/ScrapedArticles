@@ -4,10 +4,12 @@ var logger = require("morgan");
 var mongoose = require("mongoose");
 var cheerio = require("cheerio");
 var request = require("request");
-
-// Set Handlebars.
 var exphbs = require("express-handlebars");
 
+// Initialize Express
+var app = express();
+
+// Set Handlebars.
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 
@@ -75,7 +77,7 @@ app.get("/articles", function(req, res) {
     });
 });
 
-// A GET route for scraping the echoJS website
+// A GET route for scraping the travelmag website
 app.get("/scrape", function(req, res) {
   request("http://www.thetravelmagazine.net/articles", function(
     error,
