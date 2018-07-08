@@ -5,9 +5,14 @@ var Schema = mongoose.Schema;
 
 //Using the Schema constructor, create a new NoteSchema object (which will be a collection in our db)
 var NoteSchema = new Schema({
-  title: String,
-
-  body: String
+  
+  headline: {
+  type: String,
+  },
+  
+  comment: {
+  type: String,
+  }
 });
 
 var Note = mongoose.model("Note", NoteSchema)

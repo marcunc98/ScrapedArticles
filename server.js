@@ -18,10 +18,9 @@ app.set("view engine", "handlebars");
 // Require all models
 var db = require("./models");
 
+// Define the port
 var PORT = 7000;
 
-// Initialize Express
-var app = express();
 
 // Configure middleware
 
@@ -56,7 +55,13 @@ mongoose.connect(MONGODB_URI);
 // Routes....
 
 app.get("/", function(req, res) {
-  res.render("home");
+  // db.Article.remove({});
+  db.Article.find({}).then(function(results){
+    // console.log("RESULTS!!!!!!!!!!!!!!!!!!!!!!!!!: ", results)
+    // if button clicked = true?? or just clicked
+    res.render("home", {articles: results});
+  })
+  
 });
 
 
@@ -64,21 +69,9 @@ app.get("/saved", function(req, res) {
   res.render("saved");
 });
 
-// GET Route for getting all vacation articles as JSON from our database
-app.get("/articles", function(req, res) {
-  //find({}) will gather all documents in our articles collection
-  db.Article.find({})
-    .then(function(dbArticle) {
-      //Is the request to the db is sucessful, article data will be sent back to the clien-side
-      res.json(dbArticle);
-    })
-    .catch(function(err) {
-      res.json(err);
-    });
-});
-
 // A GET route for scraping the travelmag website
 app.get("/scrape", function(req, res) {
+ 
   request("http://www.thetravelmagazine.net/articles", function(
     error,
     response,
@@ -118,7 +111,7 @@ app.get("/scrape", function(req, res) {
     db.Article.create(results)
       .then(function(dbArticle) {
         // View the added result in the console
-        console.log(dbArticle);
+       // console.log(dbArticle);
       })
       .catch(function(err) {
         // If an error occurred, send it to the client
@@ -126,9 +119,73 @@ app.get("/scrape", function(req, res) {
       });
 
     // If we were able to successfully scrape and save an Article, send a message to the client
-    res.send("Scrape Complete");
+    res.redirect('/')
+    //res.send("Scrape Complete");
 
     console.log(results);
+  });
+});
+
+// GET Route for getting all vacation articles as JSON from our database
+app.get("/articles", function(req, res) {
+  //find({}) will gather all documents in our articles collection
+  db.Article.find({})
+    .then(function(dbArticle) {
+      //Is the request to the db is sucessful, article data will be sent back to the clien-side
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      res.json(err);
+    });
+});
+
+
+
+// Route for grabbing a specific Article by id, populate it with it's note
+app.get("/articles/:id", function(req, res) {
+  // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
+  db.Article.findOne({ _id: req.params.id })
+    // ..and populate all of the notes associated with it
+    .populate("note")
+    .then(function(dbArticle) {
+      // If we were able to successfully find an Article with the given id, send it back to the client
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
+
+
+// Route for saving/updating an Article's associated Note
+app.post("/articles/:id", function(req, res) {
+  // Create a new note and pass the req.body to the entry
+  db.Note.create(req.body)
+    .then(function(dbNote) {
+      // If a Note was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Note
+      // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
+      // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
+      return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, { new: true });
+    })
+    .then(function(dbArticle) {
+      // If we were able to successfully update an Article, send it back to the client
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
+
+//Route for deleting an Article
+app.delete("/articles/:id", function(req, res) {
+  db.Article.destroy({
+    where: {
+      id: req.params.id
+    }
+  }).then(function(dbArticle) {
+    res.json(dbArticle);
   });
 });
 
