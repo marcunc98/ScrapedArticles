@@ -2,7 +2,7 @@
 
 # FriendFinder
 
-The goal with this assignment was to create an application utilizing Mongoose and Cheerio to scrape news article headings, links, and summary data into your app and display them on the front end. As well, the goad was to allow users to have the ability to enteract with the app by commenting on specific articles and saving those comments/notes to a specific article.
+The goal with this assignment was to create an application utilizing Mongoose and Cheerio to scrape news article headings, links, and summary data into your app and display them on the front end. As well, the goal was to allow users to have the ability to interact with the app by commenting on specific articles and saving those comments/notes to a specific article.
 
 Navigation:
 
